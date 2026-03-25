@@ -822,6 +822,37 @@ def get_center(model, eval_dataloader, post_process_class):
     return char_center
 
 
+def _is_main_process():
+    try:
+        return dist.get_rank() == 0
+    except Exception:
+        return True
+
+
+def _get_mlflow_params(config):
+    """Build MLflow params from config with backward compatibility."""
+    global_cfg = config.get("Global", {})
+
+    mlflow_params = {}
+    top_level_mlflow = config.get("mlflow", {})
+    if isinstance(top_level_mlflow, dict):
+        mlflow_params.update(copy.deepcopy(top_level_mlflow))
+
+    global_mlflow = global_cfg.get("mlflow", {})
+    if isinstance(global_mlflow, dict):
+        # Global.mlflow takes lower priority than top-level mlflow.
+        merged = copy.deepcopy(global_mlflow)
+        merged.update(mlflow_params)
+        mlflow_params = merged
+
+    use_mlflow = bool(global_cfg.get("use_mlflow", False))
+    use_mlflow = use_mlflow or bool(mlflow_params.pop("use_mlflow", False))
+
+    # Any explicit mlflow config implies enabled.
+    enabled = use_mlflow or bool(mlflow_params)
+    return enabled, mlflow_params
+
+
 def preprocess(is_train=False):
     FLAGS = ArgsParser().parse_args()
     profiler_options = FLAGS.profiler_options
@@ -953,24 +984,27 @@ def preprocess(is_train=False):
         log_writer = None
 
     # MLflow logger initialization
-    if (
-        "use_mlflow" in config.get("Global", {}) and config["Global"]["use_mlflow"]
-    ) or "mlflow" in config:
-        save_dir = config["Global"]["save_model_dir"]
-        if "mlflow" in config:
-            mlflow_params = config["mlflow"]
+    use_mlflow, mlflow_params = _get_mlflow_params(config)
+    if use_mlflow:
+        if _is_main_process():
+            save_dir = config["Global"]["save_model_dir"]
+            mlflow_params = copy.deepcopy(mlflow_params)
+            mlflow_params.update({"save_dir": save_dir})
+            # Pass uniform_output_enabled flag for correct artifact path resolution
+            mlflow_params["uniform_output_enabled"] = config["Global"].get(
+                "uniform_output_enabled", False
+            )
+            try:
+                log_writer = MLflowLogger(**mlflow_params, config=config)
+                loggers.append(log_writer)
+            except ModuleNotFoundError as e:
+                logger.warning(f"MLflow not available: {e}")
+            except Exception as e:
+                logger.warning(f"Failed to initialize MLflow logger: {e}")
         else:
-            mlflow_params = dict()
-        mlflow_params.update({"save_dir": save_dir})
-        # Pass uniform_output_enabled flag for correct artifact path resolution
-        mlflow_params["uniform_output_enabled"] = config["Global"].get(
-            "uniform_output_enabled", False
-        )
-        try:
-            log_writer = MLflowLogger(**mlflow_params, config=config)
-            loggers.append(log_writer)
-        except ModuleNotFoundError as e:
-            logger.warning(f"MLflow not available: {e}")
+            logger.info(
+                "MLflow is enabled, but initialization is skipped on non-zero ranks."
+            )
     print_dict(config, logger)
 
     if loggers:

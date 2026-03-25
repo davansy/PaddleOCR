@@ -1,6 +1,13 @@
+import json
+import numbers
 import os
-from .base_logger import BaseLogger
+import tempfile
+
+import numpy as np
+
 from ppocr.utils.logging import get_logger
+
+from .base_logger import BaseLogger
 
 
 class MLflowLogger(BaseLogger):
@@ -45,6 +52,8 @@ class MLflowLogger(BaseLogger):
         self.run_name = run_name
         self.logger = get_logger()
         self._run = None
+        self._owns_run = False
+        self.kwargs = kwargs
 
         # Set tracking URI with priority: env var > config param > default
         self.tracking_uri = os.environ.get("MLFLOW_TRACKING_URI", tracking_uri)
@@ -52,30 +61,85 @@ class MLflowLogger(BaseLogger):
             self.mlflow.set_tracking_uri(self.tracking_uri)
             self.logger.info(f"MLflow tracking URI set to: {self.tracking_uri}")
 
-        # Set or create experiment
-        self.mlflow.set_experiment(self.experiment_name)
-
-        # Start the run
-        self._run = self.mlflow.start_run(run_name=self.run_name)
+        self._init_run()
 
         # Log config as parameters if provided
         if self.config:
             self._log_config_params(self.config)
 
+    def _init_run(self):
+        """Reuse active run if present, otherwise start a new run."""
+        active_run = None
+        if hasattr(self.mlflow, "active_run"):
+            try:
+                active_run = self.mlflow.active_run()
+            except Exception as e:
+                self.logger.warning(f"Unable to query active MLflow run: {e}")
+
+        if active_run is not None:
+            self._run = active_run
+            self._owns_run = False
+            self.logger.info("Reusing existing active MLflow run")
+            return
+
+        self.mlflow.set_experiment(self.experiment_name)
+        self._run = self.mlflow.start_run(run_name=self.run_name)
+        self._owns_run = True
+
+    def _sanitize_param_value(self, value):
+        if isinstance(value, (dict, list, tuple, set)):
+            return str(value)[:500]
+        if isinstance(value, np.ndarray):
+            if value.size == 1:
+                return value.item()
+            return str(value.tolist())[:500]
+        if isinstance(value, np.generic):
+            return value.item()
+        if value is None:
+            return "None"
+        return value
+
+    def _safe_log_param(self, key, value):
+        sanitized = self._sanitize_param_value(value)
+        try:
+            self.mlflow.log_param(key, sanitized)
+        except Exception:
+            # Fallback to string for unsupported or long values.
+            try:
+                self.mlflow.log_param(key, str(sanitized)[:500])
+            except Exception:
+                self.logger.warning(f"Failed to log param to MLflow: {key}")
+
     def _log_config_params(self, config, prefix=""):
         """Recursively log config as MLflow parameters."""
         if isinstance(config, dict):
             for key, value in config.items():
-                new_prefix = f"{prefix}.{key}" if prefix else key
-                if isinstance(value, (dict, list)):
-                    # Convert complex types to string for MLflow
-                    self.mlflow.log_param(new_prefix, str(value)[:500])
+                new_prefix = f"{prefix}.{key}" if prefix else str(key)
+                if isinstance(value, dict):
+                    self._log_config_params(value, new_prefix)
+                elif isinstance(value, list):
+                    for idx, item in enumerate(value):
+                        self._log_config_params(item, f"{new_prefix}[{idx}]")
                 else:
-                    try:
-                        self.mlflow.log_param(new_prefix, value)
-                    except Exception:
-                        # MLflow has limits on param values, convert to string
-                        self.mlflow.log_param(new_prefix, str(value)[:500])
+                    self._safe_log_param(new_prefix, value)
+            return
+
+        # Base case for non-dict values.
+        self._safe_log_param(prefix, config)
+
+    @staticmethod
+    def _to_mlflow_metric_value(value):
+        if isinstance(value, bool) or value is None:
+            return None
+        if isinstance(value, numbers.Real):
+            return float(value)
+        if isinstance(value, np.generic):
+            return float(value.item())
+        if isinstance(value, np.ndarray):
+            if value.size == 1:
+                return float(value.item())
+            return None
+        return None
 
     def log_metrics(self, metrics, prefix=None, step=None):
         """Log metrics to MLflow.
@@ -90,11 +154,17 @@ class MLflowLogger(BaseLogger):
 
         formatted_metrics = {}
         for k, v in metrics.items():
+            metric_value = self._to_mlflow_metric_value(v)
+            if metric_value is None:
+                continue
             if prefix:
                 metric_key = f"{prefix.lower()}/{k}"
             else:
                 metric_key = k
-            formatted_metrics[metric_key] = v
+            formatted_metrics[metric_key] = metric_value
+
+        if not formatted_metrics:
+            return
 
         try:
             self.mlflow.log_metrics(formatted_metrics, step=step)
@@ -149,11 +219,26 @@ class MLflowLogger(BaseLogger):
 
             # Log metadata if provided
             if metadata:
-                import json
-                metadata_path = os.path.join(artifact_dir, f"{prefix}_metadata.json")
-                with open(metadata_path, "w") as f:
-                    json.dump(metadata, f, indent=2)
-                self.mlflow.log_artifact(metadata_path, artifact_path="models")
+                if hasattr(self.mlflow, "log_dict"):
+                    self.mlflow.log_dict(
+                        metadata, artifact_file=f"models/{prefix}_metadata.json"
+                    )
+                else:
+                    metadata_path = None
+                    try:
+                        tmp_dir = artifact_dir if os.path.isdir(artifact_dir) else None
+                        with tempfile.NamedTemporaryFile(
+                            mode="w",
+                            suffix="_metadata.json",
+                            delete=False,
+                            dir=tmp_dir,
+                        ) as tmp:
+                            metadata_path = tmp.name
+                            json.dump(metadata, tmp, indent=2, ensure_ascii=False)
+                        self.mlflow.log_artifact(metadata_path, artifact_path="models")
+                    finally:
+                        if metadata_path and os.path.exists(metadata_path):
+                            os.remove(metadata_path)
 
             # Tag as best if applicable
             if is_best:
@@ -191,7 +276,8 @@ class MLflowLogger(BaseLogger):
                         self.mlflow.log_artifact(log_path, artifact_path="logs")
                         break
 
-            self.mlflow.end_run()
-            self.logger.info("MLflow run ended successfully")
+            if self._owns_run:
+                self.mlflow.end_run()
+                self.logger.info("MLflow run ended successfully")
         except Exception as e:
             self.logger.warning(f"Error closing MLflow run: {e}")
