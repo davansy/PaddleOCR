@@ -1,0 +1,404 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1774351639571,
+  "projectRoot": "/home/matrix/projects/PaddleOCR",
+  "techStack": {
+    "languages": [
+      {
+        "name": "Python",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "pyproject.toml",
+          "requirements.txt"
+        ]
+      }
+    ],
+    "frameworks": [],
+    "packageManager": "pip",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": "pytest",
+    "lintCommand": "ruff check",
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs",
+      "tests"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "applications": {
+      "path": "applications",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1774351639564,
+      "keyFiles": [
+        "README.md"
+      ]
+    },
+    "benchmark": {
+      "path": "benchmark",
+      "purpose": null,
+      "fileCount": 4,
+      "lastAccessed": 1774351639564,
+      "keyFiles": [
+        "analysis.py",
+        "readme.md",
+        "run_benchmark_det.sh",
+        "run_det.sh"
+      ]
+    },
+    "configs": {
+      "path": "configs",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1774351639564,
+      "keyFiles": []
+    },
+    "deploy": {
+      "path": "deploy",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1774351639565,
+      "keyFiles": [
+        "README.md",
+        "README_ch.md"
+      ]
+    },
+    "doc": {
+      "path": "doc",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1774351639566,
+      "keyFiles": []
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 6,
+      "lastAccessed": 1774351639567,
+      "keyFiles": [
+        "FAQ.en.md",
+        "FAQ.md",
+        "index.en.md",
+        "index.md",
+        "quick_start.en.md"
+      ]
+    },
+    "langchain-paddleocr": {
+      "path": "langchain-paddleocr",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1774351639567,
+      "keyFiles": [
+        "Makefile",
+        "README.md",
+        "README_cn.md",
+        "pyproject.toml",
+        "uv.lock"
+      ]
+    },
+    "mcp_server": {
+      "path": "mcp_server",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1774351639567,
+      "keyFiles": [
+        "README.md",
+        "README_en.md",
+        "pyproject.toml"
+      ]
+    },
+    "overrides": {
+      "path": "overrides",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1774351639567,
+      "keyFiles": [
+        "main.html"
+      ]
+    },
+    "paddleocr": {
+      "path": "paddleocr",
+      "purpose": null,
+      "fileCount": 8,
+      "lastAccessed": 1774351639567,
+      "keyFiles": [
+        "__init__.py",
+        "__main__.py",
+        "_abstract.py",
+        "_cli.py",
+        "_common_args.py"
+      ]
+    },
+    "ppocr": {
+      "path": "ppocr",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1774351639567,
+      "keyFiles": [
+        "__init__.py"
+      ]
+    },
+    "ppstructure": {
+      "path": "ppstructure",
+      "purpose": null,
+      "fileCount": 4,
+      "lastAccessed": 1774351639567,
+      "keyFiles": [
+        "README.md",
+        "__init__.py",
+        "predict_system.py",
+        "utility.py"
+      ]
+    },
+    "readme": {
+      "path": "readme",
+      "purpose": null,
+      "fileCount": 8,
+      "lastAccessed": 1774351639568,
+      "keyFiles": [
+        "README_ar.md",
+        "README_cn.md",
+        "README_es.md",
+        "README_fr.md",
+        "README_ja.md"
+      ]
+    },
+    "skills": {
+      "path": "skills",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1774351639568,
+      "keyFiles": [
+        "README.md",
+        "README_cn.md"
+      ]
+    },
+    "test_tipc": {
+      "path": "test_tipc",
+      "purpose": null,
+      "fileCount": 17,
+      "lastAccessed": 1774351639568,
+      "keyFiles": [
+        "benchmark_train.sh",
+        "build_server.sh",
+        "common_func.sh",
+        "compare_results.py",
+        "prepare.sh"
+      ]
+    },
+    "tests": {
+      "path": "tests",
+      "purpose": "Test files",
+      "fileCount": 8,
+      "lastAccessed": 1774351639568,
+      "keyFiles": [
+        "__init__.py",
+        "test_cls_postprocess.py",
+        "test_formula_model.py",
+        "test_french_accents.py",
+        "test_iaa_augment.py"
+      ]
+    },
+    "tools": {
+      "path": "tools",
+      "purpose": null,
+      "fileCount": 17,
+      "lastAccessed": 1774351639568,
+      "keyFiles": [
+        "__init__.py",
+        "eval.py",
+        "export_center.py",
+        "export_model.py",
+        "infer_cls.py"
+      ]
+    },
+    "langchain-paddleocr/scripts": {
+      "path": "langchain-paddleocr/scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 2,
+      "lastAccessed": 1774351639569,
+      "keyFiles": [
+        "check_imports.py",
+        "lint_imports.sh"
+      ]
+    },
+    "langchain-paddleocr/tests": {
+      "path": "langchain-paddleocr/tests",
+      "purpose": "Test files",
+      "fileCount": 1,
+      "lastAccessed": 1774351639569,
+      "keyFiles": [
+        "__init__.py"
+      ]
+    },
+    "ppocr/data": {
+      "path": "ppocr/data",
+      "purpose": "Data files",
+      "fileCount": 8,
+      "lastAccessed": 1774351639570,
+      "keyFiles": [
+        "__init__.py",
+        "collate_fn.py",
+        "latexocr_dataset.py"
+      ]
+    },
+    "ppocr/utils": {
+      "path": "ppocr/utils",
+      "purpose": "Utility functions",
+      "fileCount": 17,
+      "lastAccessed": 1774351639570,
+      "keyFiles": [
+        "EN_symbol_dict.txt",
+        "__init__.py",
+        "dict90.txt"
+      ]
+    },
+    "test_tipc/docs": {
+      "path": "test_tipc/docs",
+      "purpose": "Documentation",
+      "fileCount": 22,
+      "lastAccessed": 1774351639570,
+      "keyFiles": [
+        "benchmark_train.md",
+        "compare_cpp_right.png",
+        "compare_cpp_wrong.png"
+      ]
+    },
+    "tests/models": {
+      "path": "tests/models",
+      "purpose": "Data models",
+      "fileCount": 15,
+      "lastAccessed": 1774351639571,
+      "keyFiles": [
+        "__init__.py",
+        "image_classification_common.py",
+        "object_detection_common.py"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "tools/program.py",
+      "accessCount": 35,
+      "lastAccessed": 1774401542444,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 13,
+      "lastAccessed": 1774401538763,
+      "type": "directory"
+    },
+    {
+      "path": "ppocr/utils/loggers/wandb_logger.py",
+      "accessCount": 11,
+      "lastAccessed": 1774401531178,
+      "type": "file"
+    },
+    {
+      "path": "ppocr/utils/loggers/base_logger.py",
+      "accessCount": 10,
+      "lastAccessed": 1774401531127,
+      "type": "file"
+    },
+    {
+      "path": "ppocr/utils/loggers/loggers.py",
+      "accessCount": 10,
+      "lastAccessed": 1774401538635,
+      "type": "file"
+    },
+    {
+      "path": "ppocr/utils/loggers/mlflow_logger.py",
+      "accessCount": 9,
+      "lastAccessed": 1774401524136,
+      "type": "file"
+    },
+    {
+      "path": "ppocr/utils/loggers/__init__.py",
+      "accessCount": 8,
+      "lastAccessed": 1774401531076,
+      "type": "file"
+    },
+    {
+      "path": "ppocr/utils/save_load.py",
+      "accessCount": 4,
+      "lastAccessed": 1774354283778,
+      "type": "file"
+    },
+    {
+      "path": "tools",
+      "accessCount": 4,
+      "lastAccessed": 1774401538661,
+      "type": "directory"
+    },
+    {
+      "path": "ppocr/utils",
+      "accessCount": 2,
+      "lastAccessed": 1774354279635,
+      "type": "directory"
+    },
+    {
+      "path": "ppocr/utils/loggers",
+      "accessCount": 2,
+      "lastAccessed": 1774354587531,
+      "type": "directory"
+    },
+    {
+      "path": "README.md",
+      "accessCount": 1,
+      "lastAccessed": 1774351740268,
+      "type": "file"
+    },
+    {
+      "path": "tools/train.py",
+      "accessCount": 1,
+      "lastAccessed": 1774351806439,
+      "type": "file"
+    },
+    {
+      "path": "configs/rec/ch_ppocr_v2.0/rec_chinese_common_train_v2.0.yml",
+      "accessCount": 1,
+      "lastAccessed": 1774351815295,
+      "type": "file"
+    },
+    {
+      "path": "ppocr",
+      "accessCount": 1,
+      "lastAccessed": 1774351815302,
+      "type": "directory"
+    },
+    {
+      "path": "ppocr/utils/stats.py",
+      "accessCount": 1,
+      "lastAccessed": 1774351817818,
+      "type": "file"
+    },
+    {
+      "path": "ppocr/utils/logging.py",
+      "accessCount": 1,
+      "lastAccessed": 1774352662637,
+      "type": "directory"
+    }
+  ],
+  "userDirectives": []
+}

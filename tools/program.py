@@ -35,7 +35,7 @@ from ppocr.utils.stats import TrainingStats
 from ppocr.utils.save_load import save_model
 from ppocr.utils.utility import print_dict, AverageMeter
 from ppocr.utils.logging import get_logger
-from ppocr.utils.loggers import WandbLogger, Loggers
+from ppocr.utils.loggers import WandbLogger, MLflowLogger, Loggers
 from ppocr.utils import profiler
 from ppocr.data import build_dataloader
 from ppocr.utils.export_model import export
@@ -951,6 +951,26 @@ def preprocess(is_train=False):
         loggers.append(log_writer)
     else:
         log_writer = None
+
+    # MLflow logger initialization
+    if (
+        "use_mlflow" in config.get("Global", {}) and config["Global"]["use_mlflow"]
+    ) or "mlflow" in config:
+        save_dir = config["Global"]["save_model_dir"]
+        if "mlflow" in config:
+            mlflow_params = config["mlflow"]
+        else:
+            mlflow_params = dict()
+        mlflow_params.update({"save_dir": save_dir})
+        # Pass uniform_output_enabled flag for correct artifact path resolution
+        mlflow_params["uniform_output_enabled"] = config["Global"].get(
+            "uniform_output_enabled", False
+        )
+        try:
+            log_writer = MLflowLogger(**mlflow_params, config=config)
+            loggers.append(log_writer)
+        except ModuleNotFoundError as e:
+            logger.warning(f"MLflow not available: {e}")
     print_dict(config, logger)
 
     if loggers:

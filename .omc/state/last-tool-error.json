@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"python3 -c \\\"from ppocr.utils.loggers import MLflowLogger; print('MLflowLogger import successful')\\\"\",\"description\":\"Verify MLflowLogger import with python3\"}",
+  "error": "Exit code 1\nTraceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/home/matrix/projects/PaddleOCR/ppocr/utils/loggers/__init__.py\", line 1, in <module>\n    from .wandb_logger import WandbLogger\n  File \"/home/matrix/projects/PaddleOCR/ppocr/utils/loggers/wandb_logger.py\", line 3, in <module>\n    from ppocr.utils.logging import get_logger\n  File \"/home/matrix/projects/PaddleOCR/ppocr/utils/logging.py\", line 23, in <module>\n    import paddle.distributed as dist\nModuleNot...",
+  "timestamp": "2026-03-25T01:18:06.971Z",
+  "retry_count": 2
+}
